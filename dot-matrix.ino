@@ -1,7 +1,16 @@
 #define matrix_size 8
 #define num_of_directions 2
 typedef byte dot_matrix[matrix_size][matrix_size];
-dot_matrix matrix = {0};
+dot_matrix matrix = {
+  {0, 0, 1, 1, 1, 1, 0, 0},
+  {0, 1, 0, 0, 0, 0, 1, 0},
+  {1, 0, 1, 0, 0, 1, 0, 1},
+  {1, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 0, 0, 0, 0, 1, 1},
+  {1, 0, 1, 1, 1, 1, 0, 1},
+  {0, 1, 0, 0, 0, 0, 1, 0},
+  {0, 0, 1, 1, 1, 1, 0, 0}
+};
 
 const byte refreshSpeed = 16; // 62.5 fps
 const byte row[8] = {
@@ -13,12 +22,7 @@ const byte col[8] = {
 const byte dirPin[num_of_directions] = {10, 13};
 byte buttonState[num_of_directions] = {0};
 byte lastButtonState[num_of_directions] = {0};
-byte direction = 1;
-byte location[2] = {0, 0};
-
-unsigned int change_counter = 0;
-unsigned int active_counter = 0;
-
+byte offset = 0;
 
 void setup() {
   initPins();
@@ -42,7 +46,7 @@ void drawMatrix() {
         digitalWrite(row[y], matrix[y][x]);
         rowIsActive = matrix[y][x];
       }
-      digitalWrite(col[x], 1-matrix[y][x]);
+      digitalWrite(col[mod(x+offset,8)], 1-matrix[y][x]);
     }
     delayMicroseconds((refreshSpeed*1000)/matrix_size);
   }
@@ -53,11 +57,15 @@ void checkButton() {
     buttonState[i] = digitalRead(dirPin[i]);
     if (buttonState[i] != lastButtonState[i]) {
       if (buttonState[i]) {
-        direction = i;
+        buttonPress(i);
       }
     }
     lastButtonState[i] = buttonState[i];
   }
+}
+
+void buttonPress(byte i) {
+  offset += mod(2*i-1, 8);
 }
 
 void initPins() {
@@ -74,4 +82,8 @@ void resetPins() {
     digitalWrite(row[i], LOW);
     digitalWrite(col[i], HIGH);
   }
+}
+
+int mod(int k, int n) {
+    return ((k %= n) < 0) ? k+n : k;
 }
