@@ -1,1 +1,1 @@
-Experiments with an 8x8 LED matrix controlled by an Arduino Uno.
+Hole in the Wall Game on 8x8 Dot Matrix controlled by Arduino.
